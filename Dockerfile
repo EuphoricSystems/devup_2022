@@ -1,4 +1,4 @@
-FROM node:lts-bullseye as ui-prep
+FROM node:18.3.0-bullseye-slim as ui-prep
 RUN mkdir /dist
 COPY ./package.json /dist
 COPY ./yarn.lock /dist
@@ -10,7 +10,7 @@ RUN yarn install --production
 RUN rm -rf yarn.lock && \
     rm -rf package.json
 
-FROM node:lts-bullseye as api-prep
+FROM node:18.3.0-bullseye-slim as api-prep
 RUN mkdir /dist
 COPY ./package.json /dist
 COPY ./yarn.lock /dist
@@ -22,7 +22,7 @@ RUN yarn install --production
 RUN rm -rf yarn.lock && \
     rm -rf package.json
 
-FROM node:lts-bullseye as production-api
+FROM node:18.3.0-bullseye-slim as production-api
 RUN mkdir -p /usr/src/api
 RUN npm install pm2 -g
 
@@ -50,7 +50,7 @@ RUN rm -f /etc/nginx/nginx.conf
 
 WORKDIR /usr/share/nginx/html
 COPY --from=ui-prep /dist .
-COPY ./dist/apps/ui-hub .
+COPY ./dist/apps/hub .
 
 RUN rm -f ./assets/config.json
 
