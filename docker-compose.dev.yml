@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:5.0
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./data/mongo:/var/mongo
+    networks:
+      - external
+
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    networks:
+      - external
+
+  aws:
+    image: localstack/localstack
+    network_mode: bridge
+    ports:
+      #      - "127.0.0.1:53:53"                # only required for Pro (DNS)
+      #      - "127.0.0.1:53:53/udp"            # only required for Pro (DNS)
+      #      - "127.0.0.1:443:443"              # only required for Pro (LocalStack HTTPS Edge Proxy)
+      - '127.0.0.1:4510-4559:4510-4559' # external service port range
+      - '127.0.0.1:4566:4566' # LocalStack Edge Proxy
+    environment:
+      - DEBUG=${DEBUG-}
+      - DATA_DIR=${DATA_DIR-}
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
+      #      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}  # only required for Pro
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_ACCESS_KEY_ID=temp
+      - AWS_SECRET_ACCESS_KEY=temp
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - '${TMPDIR:-/tmp}/localstack:/tmp/localstack'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - './env/dev/.aws:/docker-entrypoint-initaws.d'
+
+networks:
+  external:
+    internal: false

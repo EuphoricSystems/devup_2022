@@ -1,0 +1,18 @@
+{
+  "api": {
+    "image": "hub/api",
+    "target": "production-api",
+    "labels":{
+      "title": "Hub API",
+      "description": "Hub API"
+    }
+  },
+  "ui-hub": {
+    "image": "hub/ui",
+    "target": "production-ui",
+    "labels":{
+      "title": "Hub UI",
+      "description": "Hub UI"
+    }
+  }
+}
