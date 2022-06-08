@@ -1,14 +1,15 @@
-name: CI
+name: PR Close
 
 on:
   pull_request:
     branches:
       - main
     types: [ closed ]
-  workflow_dispatch:
 
 jobs:
   build:
+    if: |
+      github.event.pull_request.merged == true
     runs-on: 'ubuntu-latest'
     steps:
       - uses: actions/checkout@v3
@@ -27,9 +28,6 @@ jobs:
             const { FIRST_NAME, LAST_NAME } = process.env
             
             console.log(`Hello ${FIRST_NAME} ${LAST_NAME}`)
-
-      - name: Adding markdown # Summary
-        run: echo '### Hello DevUp! :rocket:' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3

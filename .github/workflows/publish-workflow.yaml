@@ -1,10 +1,6 @@
-name: Publish (Test)
+name: Publish Full
 
 on:
-  pull_request:
-    branches:
-      - main
-    types: [ closed ]
   workflow_dispatch:
 
 permissions:
@@ -17,8 +13,6 @@ jobs:
   build:
     name: build
     runs-on: 'ubuntu-latest'
-#    if: |
-#      github.event.pull_request.merged == true
     outputs:
       version: ${{ steps.gitversion.outputs.informationalVersion }}
       branchName: ${{ steps.gitversion.outputs.branchName }}
@@ -138,3 +132,25 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.PRIVATE_GITHUB_TOKEN }}
+  test-deploy:
+    environment: 'test'
+    needs: 'docker'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy containers
+        run: |
+          echo 'Containers deployed to test'
+  staging-deploy:
+    environment: 'staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy containers
+        run: |
+          echo 'Containers deployed to staging'
+  prod-deploy:
+    environment: 'prod'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy containers
+        run: |
+          echo 'Containers deployed to prod'
