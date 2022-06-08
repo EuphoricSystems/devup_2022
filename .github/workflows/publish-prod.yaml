@@ -1,4 +1,4 @@
-name: Hub Publish (Prod)
+name: Publish (Prod)
 
 on:
   release:
@@ -49,9 +49,8 @@ jobs:
       - name: Login to Nexus
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.NEXUS_USERNAME }}
-          password: ${{ secrets.NEXUS_PASSWORD }}
-          registry: https://nexus.swimlane.io:5000
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -67,8 +66,8 @@ jobs:
         uses: EuphoricSystems/docker-promote-image@1.0.0
         if: ${{ steps.gitversion.outputs.preReleaseLabel == '' }}
         with:
-          src: nexus.swimlane.io:5000/${{ matrix.image_name }}:${{steps.gitversion.outputs.shortSha}}
+          src: hub.docker.com:5000/${{ matrix.image_name }}:${{steps.gitversion.outputs.shortSha}}
           destinations: |
-            nexus.swimlane.io:5000/${{ matrix.image_name }}:${{steps.gitversion.outputs.semVer}}
-            nexus.swimlane.io:5000/${{ matrix.image_name }}:latest
+            hub.docker.com:5000/${{ matrix.image_name }}:${{steps.gitversion.outputs.semVer}}
+            hub.docker.com:5000/${{ matrix.image_name }}:latest
             ${{ steps.login-ecr.outputs.registry }}/${{ matrix.image_name }}:${{steps.gitversion.outputs.semVer}}

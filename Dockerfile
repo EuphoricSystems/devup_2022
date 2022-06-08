@@ -17,21 +17,26 @@ COPY ./yarn.lock /dist
 
 WORKDIR /dist
 
-RUN yarn install --production
+RUN yarn install --frozen-lockfile --production
 
 RUN rm -rf yarn.lock && \
     rm -rf package.json
 
 FROM node:18.3.0-bullseye-slim as production-api
+
+ENV NODE_ENV production
+
 RUN mkdir -p /usr/src/api
 RUN npm install pm2 -g
 
-COPY --from=api-prep  /dist /usr/src/api
-COPY ./dist/apps/api /usr/src/api
+COPY --chown=node:node --from=api-prep  /dist /usr/src/api
+COPY --chown=node:node ./dist/apps/api /usr/src/api
 
 WORKDIR /usr/src/api
 
 EXPOSE 3000
+
+USER node
 
 CMD [ "pm2-runtime", "main.js" ]
 
@@ -50,7 +55,7 @@ RUN rm -f /etc/nginx/nginx.conf
 
 WORKDIR /usr/share/nginx/html
 COPY --from=ui-prep /dist .
-COPY ./dist/apps/hub .
+COPY ./dist/apps/ui .
 
 RUN rm -f ./assets/config.json
 
