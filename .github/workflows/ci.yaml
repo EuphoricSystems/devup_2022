@@ -29,34 +29,42 @@ jobs:
 
       - name: Adding markdown # Summary
         run: echo '### Hello DevUp! :rocket:' >> $GITHUB_STEP_SUMMARY
-      - uses: actions/github-script@v6 # Env as input
-        with:
-          script: |
-                core.summary
-                  .addHeading('Test Results')
-                  .addCodeBlock(fs.readFile('jest.config.js'), "js")
-                  .addTable([
-                    [{data: 'File', header: true}, {data: 'Result', header: true}],
-                    ['foo.js', 'Pass '],
-                    ['bar.js', 'Fail '],
-                    ['test.js', 'Pass ']
-                  ])
-                  .addLink('View test results!', 'https://github.com')
-                  .write()
 
-      - name: Testing Summary # Complex Summary
-        uses: actions/github-script@v6
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: |
+            build.json
+            package.json
+
+  next-job-to-run:
+    runs-on: 'ubuntu-latest'
+    needs: 'build'
+    strategy:
+      matrix:
+        file: ['build.json', 'package.json']
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3
+
+      - uses: actions/github-script@v6 # Env as input
+        env:
+          FILE_PATH: ${{ matrix.file }}
         with:
           script: |
-              console.log('foo')
-              core.summary
+            const { FILE_PATH } = process.env
+            const { promises: fs } = require('fs')
+            const path = './dist/' + FILE_PATH
+            core.summary
               .addHeading('Test Results')
-#              .addCodeBlock(generateTestResults(), "js")
-#              .addTable([
-#              [{data: 'File', header: true}, {data: 'Result', header: true}],
-#              ['foo.js', 'Pass '],
-#              ['bar.js', 'Fail '],
-#              ['test.js', 'Pass ']
-#            ])
-#              .addLink('View test results!', 'https://github.com')
-#              .write()
+              .addCodeBlock(await fs.readFile(path, 'utf8'), "ts")
+              .addTable([
+                [{data: 'File', header: true}, {data: 'Result', header: true}],
+                ['foo.js', 'Pass '],
+                ['bar.js', 'Fail '],
+                ['test.js', 'Pass ']
+              ])
+              .addLink('View test results!', 'https://github.com')
+              .write()
+
