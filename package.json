@@ -103,7 +103,7 @@
     "eslint-plugin-react-hooks": "4.5.0",
     "husky": "8.0.1",
     "jest": "27.5.1",
-    "jest-preset-angular": "11.1.1",
+    "jest-preset-angular": "11.1.2",
     "nx": "^14.1.7",
     "prettier": "^2.3.2",
     "react-test-renderer": "18.1.0",
